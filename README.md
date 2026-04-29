@@ -6,6 +6,62 @@
 
 The default user-facing goal is simple: use `team_work` as one lightweight conversational entrypoint to build a team, continue team setup, confirm members, finish the team, and then create or continue work. Low-level builder and runtime tools remain available only for inspect/debug/manual control when explicitly enabled.
 
+## What It Is
+
+Threadwork MCP is an experiment in making an AI team feel like a team instead of a host plus a pile of sealed subagents.
+
+The runtime is built around:
+
+- independent member sessions
+- shared tasks, mailbox threads, and result surfaces
+- visible discussion state derived from real runtime messages
+- a conservative host role: sponsor, reviewer, and tie-breaker rather than message relay
+- one small default host surface: `team_work`, `team_status`, `team_results`, and optional `team_models`
+
+The current product bet is that "team feeling" comes from issue-driven threads and constrained member participation, not from simply running multiple agents in parallel.
+
+## Current Loop
+
+The main end-to-end loop now works like this:
+
+```text
+discussion
+-> explicit commitToTask
+-> discussion closed
+-> task execution
+-> task completed
+-> review discussion
+-> optional follow-up task
+```
+
+That loop is now the center of the project. The runtime keeps the handoff explicit and low-noise:
+
+- settled discussions recommend `commitToTask`
+- committed discussions point the host at the created task instead of back at the old thread
+- completed tasks recommend review only when an eligible reviewer exists
+- settled reviews only recommend a follow-up commit when the thread carries an explicit follow-up cue
+
+## Project Status
+
+The repository is past the "design doc only" stage.
+
+What is already checked in:
+
+- runtime lifecycle and session ownership
+- shared task, mailbox, path-lock, event, and result state
+- deterministic scheduler ticks plus bounded scheduler runs
+- agent-facing MCP tools such as `complete_task`, `fail_task`, `send_message`, `inbox`, `lock_paths`, and `ask_lead`
+- host-facing inspection tools such as `team_status` and `team_results`
+- `team_work` as the primary build-and-work entrypoint
+- offline fake-backend tests plus env-gated real OpenCode smoke coverage
+
+Current focus:
+
+- Stage 16.5 stabilization
+- dogfooding the discussion -> task -> review loop
+- keeping host continuation single-step and easy to read
+- resisting new default tools or heavyweight orchestration until the existing loop feels stable
+
 ## Current Direction
 
 - runtime-first instead of scaffold-first
@@ -21,20 +77,6 @@ Start with these docs:
 - [docs/runtime-api.md](docs/runtime-api.md): current tool surface and default workflow
 - [docs/runtime-implementation.md](docs/runtime-implementation.md): implementation sequencing and current stage notes
 - [docs/runtime-migration.md](docs/runtime-migration.md): compatibility and migration boundaries
-
-## What Exists Today
-
-The checked-in code already includes the main runtime spine:
-
-- runtime lifecycle and session ownership
-- shared task, mailbox, path-lock, event, and result state
-- deterministic scheduler ticks plus bounded scheduler runs
-- agent-facing MCP tools such as `complete_task`, `fail_task`, `send_message`, `inbox`, `lock_paths`, and `ask_lead`
-- host-facing inspection tools such as `team_status` and `team_results`
-- `team_work` as the primary build-and-work entrypoint
-- offline fake-backend tests plus env-gated real OpenCode smoke coverage
-
-This is no longer just a redesign document set. The repository contains a working runtime-first implementation, with legacy scaffold code kept only as compatibility material.
 
 ## Default Workflow
 
@@ -104,6 +146,15 @@ OpenCode local config uses the same default stdio server path. A minimal local s
 The runtime-first path is isolated from the legacy scaffold CLI. You should not need `TEAM_MCP_ENABLE_LEGACY_OPENCODE=1` unless you are doing explicit migration-only work with `init-opencode`, `opencode-tool`, or `dogfood-opencode`.
 
 Runtime state now persists team-builder progress under the team-native `teamBuilds` key. Older state files that still contain `openCode.builds` are migrated on read, but new writes do not recreate that legacy key.
+
+## Why The Name
+
+`Threadwork` is the product name because the core coordination unit is the thread:
+
+- members discuss inside the same mailbox thread
+- a settled thread can hand off into a task
+- a completed task can open a review thread
+- host-facing state is derived from those thread and task facts rather than from a new persisted discussion entity
 
 ## Verification
 

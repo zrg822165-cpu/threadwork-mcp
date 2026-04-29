@@ -1,7 +1,7 @@
 {
   "name": "team-mcpv2",
   "version": "0.1.0",
-  "description": "A runtime-first multi-agent team system in redesign.",
+  "description": "A runtime-first MCP team runtime for message-driven AI teamwork.",
   "type": "module",
   "bin": {
     "team-mcpv2": "./dist/index.js"
