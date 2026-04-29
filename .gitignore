@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.team-mcp/
+.ai-tmp/
+coverage/
+*.log

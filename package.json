@@ -1,0 +1,33 @@
+{
+  "name": "team-mcpv2",
+  "version": "0.1.0",
+  "description": "A runtime-first multi-agent team system in redesign.",
+  "type": "module",
+  "bin": {
+    "team-mcpv2": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "docs"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dogfood:opencode": "npm run build && node dist/index.js dogfood-opencode",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@opencode-ai/sdk": "^1.14.25",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.13"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
